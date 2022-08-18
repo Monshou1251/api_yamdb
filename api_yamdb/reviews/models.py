@@ -1,10 +1,9 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
+
+from users.models import User
 
 from .validators import validate_year
-
-
-User = get_user_model()  # Пока Никита не переопределил модель Юзер, использую это
 
 
 class Category(models.Model):
@@ -82,12 +81,26 @@ class Title(models.Model):
 
 class Review(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name='Автор ревью')
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор ревью'
+    )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, verbose_name='Запись, к которой относится ревью')
-    score = models.DecimalField(max_digits=2, decimal_places=0, blank=False, null=False)
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='Запись, к которой относится ревью'
+    )
+    score = models.DecimalField(
+        max_digits=2,
+        decimal_places=0,
+        blank=False,
+        null=False
+    )
     created = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
 
     class Meta:
         verbose_name = 'Review'
@@ -104,12 +117,21 @@ class Review(models.Model):
 
 class Comments(models.Model):
     author = models.ForeignKey(
-        Review, on_delete=models.CASCADE, verbose_name='Автор ревью')
+        Review,
+        on_delete=models.CASCADE,
+        verbose_name='Автор ревью'
+    )
     post = models.ForeignKey(
-        Title, on_delete=models.CASCADE, verbose_name='Запись, к которой относится ревью')
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='Запись, к которой относится ревью'
+    )
     text = models.TextField()
     created = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
 
     class Meta:
         verbose_name = 'Review'
