@@ -1,6 +1,10 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 
 from .validators import validate_year
+
+
+User = get_user_model()  # Пока Никита не переопределил модель Юзер, использую это
 
 
 class Category(models.Model):
@@ -47,7 +51,7 @@ class Title(models.Model):
     )
     year = models.IntegerField(
         verbose_name='Год написания',
-        validators=[validate_year],
+        validators=(validate_year,),
     )
     description = models.TextField(
         verbose_name='Краткое описание',
@@ -74,3 +78,39 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name='Автор ревью')
+    title = models.ForeignKey(
+        Title, on_delete=models.CASCADE, verbose_name='Запись, к которой относится ревью')
+    score = models.DecimalField(max_digits=2, decimal_places=0, blank=False, null=False)
+    created = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = 'Review'
+        verbose_name_plural = 'Reviews'
+        ordering = ['created']
+        constraints = (models.UniqueConstraint(  # Тут сомнения, нужно обсудить
+            fields=('title', 'author'),
+            name='unique_review',
+        ),)
+
+    def __str__(self):
+        return self.title
+
+
+class Comments(models.Model):
+    author = models.ForeignKey(
+        Review, on_delete=models.CASCADE, verbose_name='Автор ревью')
+    post = models.ForeignKey(
+        Title, on_delete=models.CASCADE, verbose_name='Запись, к которой относится ревью')
+    text = models.TextField()
+    created = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = 'Review'
+        verbose_name_plural = 'Reviews'
