@@ -128,7 +128,8 @@ class GenreViewSet(CustomViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(
-        rating=Avg('reviews__score')).all()
+        rating=Avg('reviews__score')
+    ).all()
     permission_classes = (IsAdminUserOrReadOnly,)
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)

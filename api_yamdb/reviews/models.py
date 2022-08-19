@@ -75,7 +75,9 @@ class Title(models.Model):
         blank=True,
         null=True,
     )
-    rating = models.DecimalField(
+    rating_val = models.DecimalField(
+        max_digits=2,
+        decimal_places=2,
         verbose_name='Рейтинг',
         null=True,
         default=None
@@ -97,6 +99,7 @@ class Review(models.Model):
     )
     title = models.ForeignKey(
         Title,
+        related_name='reviews',
         on_delete=models.CASCADE,
         verbose_name='Запись, к которой относится ревью'
     )
