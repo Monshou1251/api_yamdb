@@ -10,17 +10,19 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.shortcuts import get_object_or_404
 
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Title, Comment
 from users.models import User
 
 from .filters import TitleFilter
 from .mixins import CustomViewSet
 from .permissions import IsAdminOnly, IsAdminUserOrReadOnly
-from .serializers import (CategorySerializer, GenreSerializer,
-                          SignUpSerializer, TitleReadSerializer,
-                          TitleWriteSerializer, TokenSerializer,
-                          UserForAdminSerializer, UserSerializer)
+from .serializers import (SignUpSerializer, TokenSerializer,
+                          UserForAdminSerializer, UserSerializer,
+                          CategorySerializer, GenreSerializer,
+                          TitleReadSerializer, TitleWriteSerializer,
+                          CommentSerializer, ReviewSerializer)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -139,3 +141,30 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method in ['POST', 'PATCH']:
             return TitleWriteSerializer
         return TitleReadSerializer
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    Проставление оценок(score) для публикаций.
+    Получение оценки по id публикации.
+    """
+    serializer_class = ReviewSerializer
+    permission_classes = (permissions.AllowAny,)
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        new_queryset = title.reviews.all()
+        return new_queryset
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """
+    Комментирование оценок(score) к публикациям.
+    """
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthorOrReadOnlyPermission,)

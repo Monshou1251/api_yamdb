@@ -3,6 +3,7 @@ from rest_framework.exceptions import NotFound
 
 from reviews.models import Category, Genre, Title
 from users.models import User
+from reviews.models import Review, Comment
 
 
 class UserForAdminSerializer(serializers.ModelSerializer):
@@ -83,3 +84,15 @@ class TitleWriteSerializer(TitleReadSerializer):
         queryset=Category.objects.all(),
         slug_field='slug'
     )
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ('author', 'title', 'score', 'pub_date')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('author', 'text', 'pub_date')

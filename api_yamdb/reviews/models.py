@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 
 from users.models import User
@@ -95,12 +94,13 @@ class Review(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name='reviews',
         verbose_name='Автор ревью'
     )
     title = models.ForeignKey(
         Title,
-        related_name='reviews',
         on_delete=models.CASCADE,
+        related_name='reviews',
         verbose_name='Запись, к которой относится ревью'
     )
     score = models.DecimalField(
@@ -109,43 +109,44 @@ class Review(models.Model):
         blank=False,
         null=False
     )
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
         db_index=True
     )
 
     class Meta:
-        verbose_name = 'Review'
-        verbose_name_plural = 'Reviews'
-        ordering = ['created']
-        constraints = (models.UniqueConstraint(  # Тут сомнения, нужно обсудить
-            fields=('title', 'author'),
-            name='unique_review',
-        ),)
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+        ordering = ('pub_date',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=('title', 'author'),
+                name='unique_review',),
+            models.CheckConstraint(
+                check=models.Q(score__range=(1, 10)),
+                name='score_limit'),
+        ]
 
     def __str__(self):
         return self.title
 
 
-class Comments(models.Model):
+class Comment(models.Model):
     author = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
+        related_name='comments',
         verbose_name='Автор ревью'
     )
-    post = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        verbose_name='Запись, к которой относится ревью'
-    )
-    text = models.TextField()
-    created = models.DateTimeField(
+    text = models.TextField(max_length=240)
+    pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
         db_index=True
     )
 
     class Meta:
-        verbose_name = 'Review'
-        verbose_name_plural = 'Reviews'
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ('pub_date',)
