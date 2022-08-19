@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models.aggregates import Avg
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -10,19 +11,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.shortcuts import get_object_or_404
 
-from reviews.models import Category, Genre, Title, Comment
+from reviews.models import Category, Comment, Genre, Title
 from users.models import User
 
 from .filters import TitleFilter
 from .mixins import CustomViewSet
-from .permissions import IsAdminOnly, IsAdminUserOrReadOnly
-from .serializers import (SignUpSerializer, TokenSerializer,
-                          UserForAdminSerializer, UserSerializer,
-                          CategorySerializer, GenreSerializer,
+from .permissions import IsAdminOnly, IsAdminUserOrReadOnly, IsAuthorOrReadOnly
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer, SignUpSerializer,
                           TitleReadSerializer, TitleWriteSerializer,
-                          CommentSerializer, ReviewSerializer)
+                          TokenSerializer, UserForAdminSerializer,
+                          UserSerializer)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -167,4 +167,4 @@ class CommentViewSet(viewsets.ModelViewSet):
     """
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrReadOnlyPermission,)
+    permission_classes = (IsAuthorOrReadOnly,)
