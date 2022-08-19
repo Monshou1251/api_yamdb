@@ -75,7 +75,7 @@ class Title(models.Model):
         blank=True,
         null=True,
     )
-    rating = models.IntegerField(
+    rating = models.DecimalField(
         verbose_name='Рейтинг',
         null=True,
         default=None
