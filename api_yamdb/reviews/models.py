@@ -19,6 +19,7 @@ class Category(models.Model):
 
     class Meta:
         verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.name
@@ -37,6 +38,7 @@ class Genre(models.Model):
 
     class Meta:
         verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
 
     def __str__(self):
         return self.name
@@ -61,19 +63,27 @@ class Title(models.Model):
         Genre,
         blank=True,
         db_index=True,
+        related_name='titles',
         verbose_name='Жанр',
     )
     category = models.ForeignKey(
         Category,
+        related_name='titles',
         verbose_name='Категория',
         db_index=True,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
     )
+    rating = models.IntegerField(
+        verbose_name='Рейтинг',
+        null=True,
+        default=None
+    )
 
     class Meta:
         verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
 
     def __str__(self):
         return self.name
