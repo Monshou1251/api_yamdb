@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
 
+from reviews.models import Category, Genre, Title
 from users.models import User
 from reviews.models import Review, Comment
 
@@ -45,6 +46,44 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'username')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        exclude = ('id', )
+        lookup_field = 'slug'
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Genre
+        exclude = ('id', )
+        lookup_field = 'slug'
+
+
+class TitleReadSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(read_only=True, many=True)
+    category = CategorySerializer(read_only=True)
+    rating = serializers.IntegerField(read_only=True, required=False)
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+
+
+class TitleWriteSerializer(TitleReadSerializer):
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
+    )
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
 
 
 class ReviewSerializer(serializers.ModelSerializer):
