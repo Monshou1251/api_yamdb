@@ -1,7 +1,9 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import JWTToken, Signup, UsersViewSet
+from .views import (JWTToken, Signup, UsersViewSet,
+                    CategoryViewSet, GenreViewSet,
+                    TitleViewSet)
 
 app_name = 'api'
 
@@ -11,6 +13,9 @@ router.register(
     UsersViewSet,
     basename='users'
 )
+router.register(r'categories', CategoryViewSet, basename='categories')
+router.register(r'genres', GenreViewSet, basename='genres')
+router.register(r'titles', TitleViewSet, basename='titles')
 
 urlpatterns = [
     path('v1/auth/token/', JWTToken.as_view(), name='get_token'),
