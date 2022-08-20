@@ -8,7 +8,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'review_id', 'text', 'author', 'pub_date')
+    list_display = ('id', 'review', 'text', 'author', 'pub_date')
 
 
 class GenreAdmin(admin.ModelAdmin):
@@ -16,7 +16,7 @@ class GenreAdmin(admin.ModelAdmin):
 
 
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title_id', 'text', 'author', 'score', 'pub_date')
+    list_display = ('id', 'title', 'text', 'author', 'score', 'pub_date')
 
 
 class TitleAdmin(admin.ModelAdmin):

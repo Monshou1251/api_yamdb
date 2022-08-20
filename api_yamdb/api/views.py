@@ -7,7 +7,8 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, \
+    IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -16,7 +17,7 @@ from reviews.models import Category, Comment, Genre, Title
 
 from .filters import TitleFilter
 from .mixins import CustomViewSet
-from .permissions import IsAdminOnly, IsAdminUserOrReadOnly, IsAuthorOrReadOnly
+from .permissions import IsAdminOnly, IsAdminUserOrReadOnly, IsAuthorOrReadOnly, IsStaffOrAuthorOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer, SignUpSerializer,
                           TitleReadSerializer, TitleWriteSerializer,
@@ -148,7 +149,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     Получение оценки по id публикации.
     """
     serializer_class = ReviewSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -167,3 +168,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorOrReadOnly,)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

@@ -111,12 +111,6 @@ class Review(models.Model):
         null=True, 
         verbose_name='Текст отзыва'
     )
-    score = models.DecimalField(
-        max_digits=2,
-        decimal_places=0,
-        blank=False,
-        null=False
-    )
     score = models.IntegerField(
         verbose_name='Оценка',
         validators=(
@@ -144,7 +138,7 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return self.text
+        return self.author
 
 
 class Comment(models.Model):
@@ -173,3 +167,4 @@ class Comment(models.Model):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ('pub_date',)
+

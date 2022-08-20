@@ -1,8 +1,17 @@
 from csv import DictReader
 from django.core.management import BaseCommand
 
-from reviews.models import Comment
+from reviews.models import Comment, User, Category, Genre, Title, Review
 
+
+LIST = {
+    'User': 'users.csv',
+    'Genre': 'genre.csv',
+    'Category': 'category.csv',
+    'Title': 'titles.csv',
+    'Review': 'review.csv',
+    'Comment': 'comments.csv'
+}
 
 ALREADY_LOADED_ERROR_MESSAGE = """
 If you need to reload the Comment data from the CSV file,
@@ -27,12 +36,62 @@ class Command(BaseCommand):
         print("Loading comments data")
 
         # Code to load the data into database
-        for row in DictReader(open('./static/data/comments.csv')):
-            comment = Comment(
-                id=row['id'],
-                review=row['review_id'],
-                text=row['text'],
-                author=row['author'],
-                pub_date=row['pub_date']
-            )
-            comment.save()
+        for models, fixture_path in LIST:
+            for row in DictReader(open(f'./static/data/{fixture_path}')):
+                if models == 'User':
+                    user = User(
+                        id=row['id'],
+                        username=row['username'],
+                        email=row['email'],
+                        role=row['role'],
+                        bio=row['bio'],
+                        first_name=row['first_name'],
+                        last_name=row['last_name'],
+                    )
+                    user.save()
+
+                elif models == 'Genre':
+                    genre = Genre(
+                        id=row['id'],
+                        name=row['name'],
+                        slug=row['slug'],
+                    )
+                    genre.save()
+
+                elif models == 'Category':
+                    category = Category(
+                        id=row['id'],
+                        name=row['name'],
+                        slug=row['slug'],
+                    )
+                    category.save()
+
+                elif models == 'Title':
+                    title = Title(
+                        id=row['id'],
+                        name=row['name'],
+                        year=row['year'],
+                        category=row['category'],
+                    )
+                    title.save()
+
+                elif models == 'Review':
+                    review = Review(
+                        id=row['id'],
+                        title=row['title_id'],
+                        text=row['text'],
+                        author=row['author'],
+                        score=row['score'],
+                        pub_date=row['pub_date'],
+                    )
+                    review.save()
+
+                elif models == 'Comment':
+                    comment = Comment(
+                        id=row['id'],
+                        review=row['review_id'],
+                        text=row['text'],
+                        author=row['author'],
+                        pub_date=row['pub_date']
+                    )
+                    comment.save()
