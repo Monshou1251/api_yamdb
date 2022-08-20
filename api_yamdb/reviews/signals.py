@@ -9,8 +9,11 @@ from .models import Review
 
 @receiver([post_save, post_delete], sender=Review)
 def update_rating(sender, instance, **kwargs):
-    result = instance.reviews.all().aggregate(
+    title = instance.title
+    result = title.reviews.aggregate(
         rating=Avg('score')
     )
-    instance.rating_val = Decimal(round(result['rating'], 2))
-    instance.save()
+    rating = result['rating']
+    print(rating)
+    title.rating_val = round(rating, 2) if rating else None
+    title.save()
