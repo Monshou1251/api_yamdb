@@ -2,16 +2,14 @@ from rest_framework import permissions, status
 
 
 class IsAdminOnly(permissions.BasePermission):
-    message = "Нет прав доступа!"
-    code = status.HTTP_403_FORBIDDEN
+    message = 'Действие доступно только пользователю с ролью администратор!'
 
     def has_permission(self, request, view):
         return request.user.is_admin
 
 
 class IsAdminUserOrReadOnly(permissions.BasePermission):
-    message = "Нет прав доступа!"
-    code = status.HTTP_403_FORBIDDEN
+    message = 'Нет прав доступа!'
 
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
@@ -24,8 +22,7 @@ class IsAdminUserOrReadOnly(permissions.BasePermission):
 
 
 class IsStaffOrAuthorOrReadOnly(permissions.BasePermission):
-    message = "Нет прав доступа!"
-    code = status.HTTP_403_FORBIDDEN
+    message = 'Нет прав доступа!'
 
     def has_object_permission(self, request, view, obj):
         return (

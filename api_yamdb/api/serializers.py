@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
-from rest_framework.exceptions import NotFound
+from rest_framework import exceptions, serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
 
@@ -10,34 +9,37 @@ User = get_user_model()
 class UserForAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'bio',
-                  'role']
+        fields = ('username', 'email', 'first_name', 'last_name', 'bio',
+                  'role')
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'bio',
-                  'role']
+        fields = ('username', 'email', 'first_name', 'last_name', 'bio',
+                  'role')
         read_only_fields = ('role',)
 
 
 class TokenSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=None)
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
 
     class Meta:
         model = User
-        fields = ('username', 'confirmation_code')
+        fields = ('username', 'confirmation_code', 'user')
 
     def validate(self, data):
         try:
-            user = User.objects.get(username=data['username'])
+            self.user = User.objects.get(username=data['username'])
         except User.DoesNotExist:
-            raise NotFound({'username': 'Пользователь не найден!'})
+            raise exceptions.NotFound({
+                'username': 'Пользователь не найден!'
+            })
 
-        if data['confirmation_code'] != user.confirmation_code:
-            raise serializers.ValidationError({
+        if data['confirmation_code'] != self.user.confirmation_code:
+            raise exceptions.ValidationError({
                 'confirmation_code': 'Неверный код подтверждения!'
             })
 
