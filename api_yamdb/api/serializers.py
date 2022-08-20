@@ -50,7 +50,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ('author', 'title', 'score', 'pub_date')
+        fields = ('text', 'author', 'score', 'pub_date')
 
 
 class CommentSerializer(serializers.ModelSerializer):
