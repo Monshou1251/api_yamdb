@@ -1,7 +1,8 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from users.models import User
-
+from decimal import Decimal
 from .validators import validate_year
 
 
@@ -44,7 +45,7 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.TextField(
+    name = models.CharField(
         verbose_name='Название произведения',
         max_length=256,
         db_index=True,
@@ -60,10 +61,11 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(
         Genre,
-        blank=True,
         db_index=True,
         related_name='titles',
         verbose_name='Жанр',
+        null=True,
+        blank=True
     )
     category = models.ForeignKey(
         Category,
@@ -71,14 +73,15 @@ class Title(models.Model):
         verbose_name='Категория',
         db_index=True,
         on_delete=models.SET_NULL,
-        blank=True,
         null=True,
+        blank=True
     )
     rating_val = models.DecimalField(
-        max_digits=2,
+        max_digits=4,
         decimal_places=2,
         verbose_name='Рейтинг',
         null=True,
+        blank=True,
         default=None
     )
 
@@ -103,11 +106,15 @@ class Review(models.Model):
         related_name='reviews',
         verbose_name='Запись, к которой относится ревью'
     )
-    score = models.DecimalField(
-        max_digits=2,
-        decimal_places=0,
-        blank=False,
-        null=False
+    text = models.TextField(
+        verbose_name='Текст отзыва'
+    )
+    score = models.IntegerField(
+        verbose_name='Оценка',
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(10)
+        )
     )
     pub_date = models.DateTimeField(
         'Дата добавления',
@@ -124,12 +131,12 @@ class Review(models.Model):
                 fields=('title', 'author'),
                 name='unique_review',),
             models.CheckConstraint(
-                check=models.Q(score__range=(1, 10)),
+                check=models.Q(score__gte=1) & models.Q(score__lte=10),
                 name='score_limit'),
         ]
 
     def __str__(self):
-        return self.title
+        return self.title.name
 
 
 class Comment(models.Model):
@@ -139,7 +146,10 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='Автор ревью'
     )
-    text = models.TextField(max_length=240)
+    text = models.TextField(
+        max_length=240,
+        verbose_name='Текст комментария'
+    )
     pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
