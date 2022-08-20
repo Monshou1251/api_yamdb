@@ -34,10 +34,12 @@ class TokenSerializer(serializers.ModelSerializer):
         try:
             user = User.objects.get(username=data['username'])
         except User.DoesNotExist:
-            raise NotFound('Пользователь не найден!')
+            raise NotFound({'username': 'Пользователь не найден!'})
 
         if data['confirmation_code'] != user.confirmation_code:
-            raise serializers.ValidationError('Неверный код подтверждения!')
+            raise serializers.ValidationError({
+                'confirmation_code': 'Неверный код подтверждения!'
+            })
 
         return data
 
