@@ -1,22 +1,29 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.shortcuts import get_object_or_404
 
-from reviews.models import Title, Comment
-from reviews.permissions import IsAuthorOrReadOnlyPermission
-from users.models import User
+from reviews.models import Category, Comment, Genre, Title
 
-from .permissions import IsAdminOnly
-from .serializers import (SignUpSerializer, TokenSerializer,
-                          UserForAdminSerializer, UserSerializer,
-                          CommentSerializer, ReviewSerializer)
+from .filters import TitleFilter
+from .mixins import CustomViewSet
+from .permissions import IsAdminOnly, IsAdminUserOrReadOnly, IsAuthorOrReadOnly
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer, SignUpSerializer,
+                          TitleReadSerializer, TitleWriteSerializer,
+                          TokenSerializer, UserForAdminSerializer,
+                          UserSerializer)
+
+User = get_user_model()
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -102,6 +109,39 @@ class JWTToken(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class CategoryViewSet(CustomViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsAdminUserOrReadOnly,)
+    pagination_class = PageNumberPagination
+    lookup_field = 'slug'
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+
+
+class GenreViewSet(CustomViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (IsAdminUserOrReadOnly,)
+    pagination_class = PageNumberPagination
+    lookup_field = 'slug'
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    permission_classes = (IsAdminUserOrReadOnly,)
+    pagination_class = PageNumberPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PATCH']:
+            return TitleWriteSerializer
+        return TitleReadSerializer
+
+
 class ReviewViewSet(viewsets.ModelViewSet):
     """
     Проставление оценок(score) для публикаций.
@@ -126,4 +166,4 @@ class CommentViewSet(viewsets.ModelViewSet):
     """
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrReadOnlyPermission,)
+    permission_classes = (IsAuthorOrReadOnly,)
