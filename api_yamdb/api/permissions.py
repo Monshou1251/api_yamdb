@@ -1,4 +1,6 @@
-from rest_framework import permissions, status
+from rest_framework import permissions
+
+DEFAULT_PERMISSION_MESSAGE = 'Нет прав доступа'
 
 
 class IsAdminOnly(permissions.BasePermission):
@@ -9,7 +11,7 @@ class IsAdminOnly(permissions.BasePermission):
 
 
 class IsAdminUserOrReadOnly(permissions.BasePermission):
-    message = 'Нет прав доступа!'
+    message = DEFAULT_PERMISSION_MESSAGE
 
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
@@ -22,7 +24,7 @@ class IsAdminUserOrReadOnly(permissions.BasePermission):
 
 
 class IsStaffOrAuthorOrReadOnly(permissions.BasePermission):
-    message = 'Нет прав доступа!'
+    message = DEFAULT_PERMISSION_MESSAGE
 
     def has_object_permission(self, request, view, obj):
         return (
