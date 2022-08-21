@@ -148,7 +148,7 @@ class Comment(models.Model):
         Review,
         on_delete=models.CASCADE,
         verbose_name='ID обзора',
-        default=''
+        related_name='comments'
     )
     text = models.TextField(
         max_length=240,

@@ -13,11 +13,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Category, Comment, Genre, Title
+from reviews.models import Category, Comment, Genre, Title, Review
 
 from .filters import TitleFilter
 from .mixins import CustomViewSet
-from .permissions import IsAdminOnly, IsAdminUserOrReadOnly, IsAuthorOrReadOnly, IsStaffOrAuthorOrReadOnly
+from .permissions import IsAdminOnly, IsAdminUserOrReadOnly, IsStaffOrAuthorOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer, SignUpSerializer,
                           TitleReadSerializer, TitleWriteSerializer,
@@ -149,8 +149,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     Получение оценки по id публикации.
     """
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    pagination_class = PageNumberPagination
+    permission_classes = (IsStaffOrAuthorOrReadOnly,)
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -166,10 +165,14 @@ class CommentViewSet(viewsets.ModelViewSet):
     """
     Комментирование оценок(score) к публикациям.
     """
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
-    pagination_class = PageNumberPagination
+    permission_classes = (IsStaffOrAuthorOrReadOnly,)
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        new_queryset = review.comments.all()
+        return new_queryset
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)

@@ -1,4 +1,6 @@
 from csv import DictReader
+
+from django.conf import settings
 from django.core.management import BaseCommand
 
 from reviews.models import Comment, User, Category, Genre, Title, Review
@@ -36,8 +38,8 @@ class Command(BaseCommand):
         print("Loading comments data")
 
         # Code to load the data into database
-        for models, fixture_path in LIST:
-            for row in DictReader(open(f'./static/data/{fixture_path}')):
+        for models, fixture_path in LIST.items():
+            for row in DictReader(open(f'{settings.BASE_DIR}/static/data/{fixture_path}', 'r', encoding='UTF-8')):
                 if models == 'User':
                     user = User(
                         id=row['id'],
@@ -71,16 +73,16 @@ class Command(BaseCommand):
                         id=row['id'],
                         name=row['name'],
                         year=row['year'],
-                        category=row['category'],
+                        category=Category.objects.get(pk=row['category']),
                     )
                     title.save()
 
                 elif models == 'Review':
                     review = Review(
                         id=row['id'],
-                        title=row['title_id'],
+                        title=Title.objects.get(pk=row['title_id']),
                         text=row['text'],
-                        author=row['author'],
+                        author=User.objects.get(pk=row['author']),
                         score=row['score'],
                         pub_date=row['pub_date'],
                     )
@@ -89,9 +91,10 @@ class Command(BaseCommand):
                 elif models == 'Comment':
                     comment = Comment(
                         id=row['id'],
-                        review=row['review_id'],
+                        review=Review.objects.get(pk=row['review_id']),
                         text=row['text'],
-                        author=row['author'],
+                        author=User.objects.get(pk=row['author']),
                         pub_date=row['pub_date']
                     )
                     comment.save()
+        self.stdout.write(msg='Данные успешно загружены')
