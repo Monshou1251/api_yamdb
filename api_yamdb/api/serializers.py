@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
+from rest_framework.fields import IntegerField
 from rest_framework.relations import SlugRelatedField
 
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -88,11 +89,12 @@ class TitleWriteSerializer(TitleReadSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    id = IntegerField(label='ID', read_only=True)
     author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
 
     def validate(self, data):
         author = self.context['request'].user
@@ -110,4 +112,4 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('author', 'text', 'pub_date')
+        fields = ('id', 'text', 'author', 'pub_date')

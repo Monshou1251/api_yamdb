@@ -104,7 +104,6 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Запись, к которой относится ревью',
-        null=False
     )
     text = models.TextField(
         max_length=240, 
@@ -137,9 +136,6 @@ class Review(models.Model):
                 name='score_limit'),
         ]
 
-    def __str__(self):
-        return self.author
-
 
 class Comment(models.Model):
     author = models.ForeignKey(
@@ -151,7 +147,8 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        verbose_name='ID обзора'
+        verbose_name='ID обзора',
+        default=''
     )
     text = models.TextField(
         max_length=240,
@@ -167,4 +164,3 @@ class Comment(models.Model):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ('pub_date',)
-
