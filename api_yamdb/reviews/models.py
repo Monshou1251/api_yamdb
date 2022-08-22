@@ -106,8 +106,8 @@ class Review(models.Model):
         verbose_name='Автор ревью',
     )
     text = models.TextField(
-        max_length=240, 
-        null=True, 
+        max_length=240,
+        null=True,
         verbose_name='Текст отзыва'
     )
     score = models.IntegerField(
@@ -130,7 +130,7 @@ class Review(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=('title', 'author'),
-                name='unique_review',),
+                name='unique_review', ),
             models.CheckConstraint(
                 check=models.Q(score__gte=1) & models.Q(score__lte=10),
                 name='score_limit'),
