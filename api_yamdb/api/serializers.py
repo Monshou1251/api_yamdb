@@ -1,5 +1,12 @@
 from django.contrib.auth import get_user_model
-from rest_framework import exceptions, serializers
+
+from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+from rest_framework.exceptions import NotFound
+from rest_framework.fields import IntegerField
+from rest_framework.relations import SlugRelatedField
+
 
 from reviews.models import Category, Comment, Genre, Review, Title
 
@@ -89,12 +96,30 @@ class TitleWriteSerializer(TitleReadSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    author = SlugRelatedField(slug_field='username', read_only=True)
+
     class Meta:
         model = Review
-        fields = ('author', 'title', 'score', 'pub_date')
+        exclude = ('title', )
+        read_only_fields = ('id',)
+
+    def validate(self, data):
+        request = self.context['request']
+        author = request.user
+        title = get_object_or_404(
+            Title,
+            pk=self.context.get('view').kwargs.get('title_id')
+        )
+        if (request.method == 'POST'
+           and Review.objects.filter(title=title, author=author).exists()):
+            raise ValidationError('Может существовать только один отзыв')
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = SlugRelatedField(slug_field='username', read_only=True)
+
     class Meta:
         model = Comment
-        fields = ('author', 'text', 'pub_date')
+        exclude = ('review', )
+        read_only_fields = ('id',)

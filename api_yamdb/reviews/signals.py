@@ -12,6 +12,5 @@ def update_rating(sender, instance, **kwargs):
         rating=Avg('score')
     )
     rating = result['rating']
-    print(rating)
-    title.rating_val = round(rating, 2) if rating else None
+    title.rating = round(rating, 2) if rating else None
     title.save()
