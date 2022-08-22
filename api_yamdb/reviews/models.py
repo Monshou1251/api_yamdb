@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Avg
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 
 from .validators import validate_year
 
@@ -135,6 +138,17 @@ class Review(models.Model):
                 check=models.Q(score__gte=1) & models.Q(score__lte=10),
                 name='score_limit'),
         ]
+
+
+@receiver([post_save, post_delete], sender=Review)
+def update_rating(sender, instance, **kwargs):
+    title = instance.title
+    result = title.reviews.aggregate(
+        rating=Avg('score')
+    )
+    rating = result['rating']
+    title.rating = round(rating, 2) if rating else None
+    title.save()
 
 
 class Comment(models.Model):
