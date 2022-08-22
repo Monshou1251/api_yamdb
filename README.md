@@ -49,6 +49,12 @@ python3 manage.py migrate
 ```
 python3 manage.py runserver
 ```
+
+Загрузить тестовые данные:
+
+```
+python3 manage.py loaddata
+```
 ***
 ## Tech
 Yatube API uses a number of open source projects to work properly:
@@ -56,10 +62,10 @@ Yatube API uses a number of open source projects to work properly:
 - [Python] - a programming language that lets you work quickly and integrate systems more effectively.
 - [Django] - a high-level Python web framework
 ***
-## Author
-
-d
-
+## Authors
+- [Никита Звеков](https://github.com/cooper30)
+- [Ирина Смирнова](https://github.com/IrinaSMR)
+- [Григорий Юрченко](https://github.com/Monshou1251)
 
 ***
 ## Requests examples
