@@ -27,6 +27,12 @@ class IsStaffOrAuthorOrReadOnly(permissions.BasePermission):
     message = "Нет прав доступа!"
     code = status.HTTP_403_FORBIDDEN
 
+    def has_permission(self, request, view):
+        return(
+                request.method in permissions.SAFE_METHODS
+                or request.user.is_authenticated
+        )
+
     def has_object_permission(self, request, view, obj):
         return (
             request.method in permissions.SAFE_METHODS
