@@ -63,9 +63,9 @@ Yatube API uses a number of open source projects to work properly:
 - [Django] - a high-level Python web framework
 ***
 ## Authors
-- [Никита Звеков](https://github.com/cooper30)
-- [Ирина Смирнова](https://github.com/IrinaSMR)
-- [Григорий Юрченко](https://github.com/Monshou1251)
+- cooper30
+- IrinaSMR
+- Monshou1251
 
 ***
 ## Requests examples
