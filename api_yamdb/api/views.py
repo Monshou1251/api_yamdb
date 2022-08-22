@@ -45,7 +45,6 @@ class UsersViewSet(viewsets.ModelViewSet):
         url_path='me'
     )
     def get_current_user_info(self, request):
-        serializer = UserSerializer(request.user)
         if request.method == 'PATCH':
             if request.user.is_admin:
                 serializer = UserForAdminSerializer(
@@ -66,6 +65,7 @@ class UsersViewSet(viewsets.ModelViewSet):
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
+        serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
 
@@ -101,10 +101,14 @@ class JWTToken(APIView):
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
         if serializer.is_valid():
-            data = serializer.validated_data
-            user = User.objects.get(username=data['username'])
             return Response(
-                {'token': str(RefreshToken.for_user(user).access_token)},
+                {
+                    'token': str(
+                        RefreshToken.for_user(
+                            serializer.user
+                        ).access_token
+                    )
+                },
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
