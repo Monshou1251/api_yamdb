@@ -1,12 +1,7 @@
 from django.contrib.auth import get_user_model
-
-from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
-from rest_framework.exceptions import NotFound
-from rest_framework.fields import IntegerField
+from rest_framework import exceptions, serializers
 from rest_framework.relations import SlugRelatedField
-
 
 from reviews.models import Category, Comment, Genre, Review, Title
 
@@ -112,7 +107,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         )
         if (request.method == 'POST'
            and Review.objects.filter(title=title, author=author).exists()):
-            raise ValidationError('Может существовать только один отзыв')
+            raise exceptions.ValidationError(
+                {'title': 'Может существовать только один отзыв'}
+            )
         return data
 
 

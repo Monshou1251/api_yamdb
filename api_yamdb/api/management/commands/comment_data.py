@@ -3,8 +3,7 @@ from csv import DictReader
 from django.conf import settings
 from django.core.management import BaseCommand
 
-from reviews.models import Comment, User, Category, Genre, Title, Review
-
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 LIST = {
     'User': 'users.csv',
