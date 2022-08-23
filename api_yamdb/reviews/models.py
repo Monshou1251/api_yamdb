@@ -82,7 +82,11 @@ class Title(models.Model):
         verbose_name='Рейтинг',
         null=True,
         blank=True,
-        default=None
+        default=None,
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(10)
+        )
     )
 
     class Meta:
