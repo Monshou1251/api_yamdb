@@ -114,28 +114,30 @@ class JWTToken(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CategoryViewSet(CustomViewSet):
+class BaseViewSet(CustomViewSet):
+    """
+    Базовый класс для работы с категориями и жанрами.
+    """
+    permission_classes = (IsAdminUserOrReadOnly,)
+    lookup_field = 'slug'
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+
+
+class CategoryViewSet(BaseViewSet):
     """
     Работа с категориями.
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminUserOrReadOnly,)
-    lookup_field = 'slug'
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
 
 
-class GenreViewSet(CustomViewSet):
+class GenreViewSet(BaseViewSet):
     """
     Работа с жанрами.
     """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAdminUserOrReadOnly,)
-    lookup_field = 'slug'
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
