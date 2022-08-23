@@ -78,9 +78,7 @@ class Title(models.Model):
         null=True,
         blank=True
     )
-    rating = models.DecimalField(
-        max_digits=4,
-        decimal_places=2,
+    rating = models.IntegerField(
         verbose_name='Рейтинг',
         null=True,
         blank=True,
@@ -143,11 +141,10 @@ class Review(models.Model):
 @receiver([post_save, post_delete], sender=Review)
 def update_rating(sender, instance, **kwargs):
     title = instance.title
-    result = title.reviews.aggregate(
+    rating = title.reviews.aggregate(
         rating=Avg('score')
-    )
-    rating = result['rating']
-    title.rating = round(rating, 2) if rating else None
+    ).get('rating')
+    title.rating = round(rating) if rating else None
     title.save()
 
 

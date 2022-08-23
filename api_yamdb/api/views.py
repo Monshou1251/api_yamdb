@@ -76,21 +76,40 @@ class Signup(APIView):
 
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
+
         if serializer.is_valid():
             user = serializer.save()
-            email_body = (
-                f'Пользователь {user.username} успешно зарегистрирован!'
-                f'\nКод подтвержения для доступа к API: '
-                f'{user.confirmation_code}'
-            )
-            send_mail(
-                'Код подтвержения для доступа к API!',
-                email_body,
-                settings.EMAIL_ADMIN,
-                recipient_list=[user.email],
-            )
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                user = User.objects.get(
+                    email=serializer.data.get('email'),
+                    username=serializer.data.get('username')
+                )
+            except User.DoesNotExist:
+                return Response(
+                    serializer.errors,
+                    status=status.HTTP_400_BAD_REQUEST)
+
+        self.send_confirmation_code(
+            user.username,
+            user.email,
+            user.confirmation_code
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @staticmethod
+    def send_confirmation_code(username, email, confirmation_code):
+        email_body = (
+            f'Пользователь {username} успешно зарегистрирован!'
+            f'\nКод подтвержения для доступа к API: '
+            f'{confirmation_code}'
+        )
+        send_mail(
+            'Код подтвержения для доступа к API!',
+            email_body,
+            settings.EMAIL_ADMIN,
+            recipient_list=[email],
+        )
 
 
 class JWTToken(APIView):
